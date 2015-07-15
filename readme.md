@@ -1,40 +1,53 @@
-# Your ES6 App!
+# iptabler
 
-> A winner is you!
+Iptabler is a wrapper around `iptables`.  Peter Krumins wrote `node-iptables` about 4 years ago and I drew a lot of inspiration from how it works.
 
-## Directory structure
+At it's core, `iptabler` is just a simplified & flexible way to construct and issue a command line.
 
+## iptables Arguments
+
+See the [iptables man page](http://manpages.ubuntu.com/manpages/raring/man8/iptables.8.html) to get a list of the possible arguments.
+
+## API
+
+### `iptabler([options])`
+
+The `options` argument is an object which has property names that map to the chained method names which, in turn, map to command line arguments.  For hyphenated arguments, the method names and properties are camelCased so `--to-destination` becomes `toDestination`.
+
+Property values are assigned in the same order that they appear in the `options`.
+
+The full list of options is [here](http://manpages.ubuntu.com/manpages/raring/man8/iptables.8.html).
+
+```javascript
+// sudo iptables --append INPUT --source 192.168.1.100 --jump DROP
+
+iptabler({
+	sudo: true,
+	append: 'INPUT',
+	source: '192.168.1.100',
+	jump: 'DROP'
+}).exec((err, stdout) => {
+	if (err)
+		throw err;
+	console.log('result: ', stdout);
+});
 ```
-config/
-dist/
-src/
-  index.js
-  bar.js
-gulpfile.js
-index.js
-package.json
-readme.md
+
+If the `options` are omitted, then you must call the chained methods to build the command line arguments
+
+```javascript
+iptabler()
+  .sudo()
+  .append('INPUT')
+  .source('192.168.1.100')
+  .jump('DROP')
+  .exec((err, stdout) => {
+  	if (err)
+  		throw err;
+  	console.log('result: ', stdout);
+  });
 ```
 
-## Gulps
+### `.exec([callback])`
 
-- `gulp` - builds current `src/` to `dist/`, watches/builds `src/*.js`, and nodemons `index.js`
-- `gulp build` - builds current `src/` to `dist/` and exits
-- `gulp watch` - builds current `src/` to `dist/` and watches/builds `src/*.js`
-- `gulp nodemon` - nodemons `index.js`
-
-The app comes with `config` by default so you can use `NODE_ENV=xxx` to set up your environment
-
-## Workflow
-
-The idea is that you work on code in the `src/` directory and when you save it, gulp will "compile" it from ES6 to ES5 and re-run your `index.js` automagically.
-
-1 Start `gulp`
-2 Edit & save code in `src/`
-3 Observe changes to app (app restarts via nodemon)
-
-If you'd prefer to execute your code manually:
-
-1 Start `gulp watch`
-2 Edit & save code in `src/`
-3 Run your code `node ./index.js`
+The `.exec()` method is required to actually execute the command line built by either the `options` or the chained methods.  You can choose whether to send a callback along or to use the Promise that is returned so you can cleanly integrate it into your logic flow.

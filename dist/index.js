@@ -1,87 +1,9 @@
 'use strict';
 
-var spawn = require('child_process').spawn;
+var spawn = require('child_process').spawn,
+    Promise = Promise || require('q').Promise;
 
-var args = [
-// Commands
-{
-  names: ['append', 'A'],
-  arg: '-A'
-}, {
-  names: ['check', 'chk', 'C'],
-  arg: '-C'
-}, {
-  names: ['delete', 'del', 'D'],
-  arg: '-D'
-}, {
-  names: ['insert', 'ins', 'I'],
-  arg: '-I'
-}, {
-  names: ['replace', 'R'],
-  arg: '-R'
-}, {
-  names: ['list', 'L'],
-  arg: '-L'
-}, {
-  names: ['list_rules', 'rules', 'S'],
-  arg: '-S'
-}, {
-  names: ['flush', 'F'],
-  arg: '-F'
-}, {
-  names: ['zero', 'Z'],
-  arg: '-Z'
-}, {
-  names: ['new_chain', 'N'],
-  arg: '-N'
-}, {
-  names: ['delete_chain', 'X'],
-  arg: '-X'
-}, {
-  names: ['policy', 'pol', 'P'],
-  arg: '-P'
-}, {
-  names: ['rename_chain', 'rename', 'E'],
-  arg: '-E'
-},
-// Parameters
-{
-  names: ['ipv4', 'v4'],
-  arg: 'ipv4'
-}, {
-  names: ['ipv6', 'v6'],
-  arg: 'ipv6'
-}, {
-  names: ['protocol', 'proto', 'prot', 'p'],
-  arg: '-p'
-}, {
-  names: ['source', 'src', 's'],
-  arg: '-s'
-}, {
-  names: ['destination', 'dest', 'dst', 'd'],
-  arg: '-d'
-}, {
-  names: ['match', 'm'],
-  arg: '-m'
-}, {
-  names: ['jump', 'j'],
-  arg: '-j'
-}, {
-  names: ['goto', 'g'],
-  arg: '-g'
-}, {
-  names: ['in_interface', 'in', 'i'],
-  arg: '-i'
-}, {
-  names: ['out_interface', 'out', 'o'],
-  arg: '-o'
-}, {
-  names: ['fragment', 'frag', 'f'],
-  arg: '-f'
-}, {
-  names: ['set_counters', 'counters', 'c'],
-  arg: '-c'
-}];
+var args = require('./args');
 
 function iptabler(options) {
   var iptable = {
@@ -91,27 +13,33 @@ function iptabler(options) {
     _cmd: 'iptables',
 
     sudo: function sudo() {
+      iptable._args.unshift(iptable._cmd);
       iptable._cmd = 'sudo';
-      iptable._args.unshift('iptables');
       return iptable;
     },
 
     exec: function exec(callback) {
-      var cmd = spawn(iptable._cmd, iptable._args),
-          stderr = '',
-          stdout = '';
+      return Promise(function (resolve, reject) {
+        var cmd = spawn(iptable._cmd, iptable._args),
+            stderr = '',
+            stdout = '';
 
-      cmd.stdout.on('data', function (data) {
-        stdout += data;
-      });
+        cmd.stdout.on('data', function (data) {
+          stdout += data;
+        });
 
-      cmd.stderr.on('data', function (data) {
-        stderr += data;
-      });
+        cmd.stderr.on('data', function (data) {
+          stderr += data;
+        });
 
-      cmd.on('close', function (code) {
-        if (code !== 0) return callback(new Error(stderr));
-        return callback(null, stdout);
+        cmd.on('close', function (code) {
+          if (code !== 0) {
+            reject(new Error(stderr));
+            if (callback) return callback(new Error(stderr));
+          }
+          resolve(stdout);
+          if (callback) return callback(null, stdout);
+        });
       });
     }
   };

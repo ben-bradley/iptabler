@@ -1,14 +1,15 @@
 var should = require('should'),
   config = require('config'),
-  debug = require('debug')('test/spec');
+  debug = require('debug')('test/spec'),
+  iptabler = require('../');
 
 debug('starting tests...');
 
-describe('Your test', function () {
+describe('iptabler', function () {
 
   it('should pass', function () {
     debug('simple test');
     (1+1).should.eql(2);
-  })
+  });
 
-})
+});
