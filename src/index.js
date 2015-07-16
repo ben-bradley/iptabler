@@ -1,11 +1,13 @@
 'use strict';
 
 let spawn = require('child_process').spawn,
+  debug = require('debug')('iptabler'),
   Promise = Promise || require('q').Promise;
 
 let args = require('./args');
 
 function iptabler(options) {
+  debug('new iptabler:', options);
   let iptable = {
 
     _args: [],
@@ -13,6 +15,7 @@ function iptabler(options) {
     _cmd: 'iptables',
 
     sudo() {
+      debug('sudo!');
       iptable._args.unshift(iptable._cmd);
       iptable._cmd = 'sudo';
       return iptable;
@@ -20,9 +23,13 @@ function iptabler(options) {
 
     exec(callback) {
       return Promise((resolve, reject) => {
+        debug('exec: ', iptable._cmd, iptable.args.join(' '));
         let cmd = spawn(iptable._cmd, iptable._args),
           stderr = '',
           stdout = '';
+
+        iptable._cmd = 'iptables';
+        iptable._args = [];
 
         cmd.stdout.on('data', (data) => {
           stdout += data;
@@ -33,6 +40,7 @@ function iptabler(options) {
         });
 
         cmd.on('close', (code) => {
+          debug('code: ', code);
           if (code !== 0) {
             reject(new Error(stderr));
             if (callback)
@@ -50,6 +58,7 @@ function iptabler(options) {
     arg.names.forEach((name) => {
       iptable[name] = (val) => {
         iptable._args.push(arg.arg, val);
+        debug('arg', arg.arg, val);
         return iptable;
       };
     });

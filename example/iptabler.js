@@ -36,6 +36,10 @@ iptabler({
 	if (err)
 		throw err;
 	console.log('result: ', result);
+}).then(function(result) {
+	console.log('res', result);
+}).catch(function(err) {
+	throw new Error(err);
 });
 
 // iptables -A INPUT -s 202.5.4.1 -j DROP

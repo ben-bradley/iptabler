@@ -1,4 +1,4 @@
-# iptabler
+# iptabler [![Build Status](https://secure.travis-ci.org/ben-bradley/iptabler.png)](http://travis-ci.org/ben-bradley/iptabler)
 
 Iptabler is a wrapper around `iptables`.  Peter Krumins wrote `node-iptables` about 4 years ago and I drew a lot of inspiration from how it works.
 
