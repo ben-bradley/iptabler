@@ -23,13 +23,10 @@ function iptabler(options) {
 
     exec(callback) {
       return Promise((resolve, reject) => {
-        debug('exec: ', iptable._cmd, iptable.args.join(' '));
+        debug('exec: ', iptable._cmd, iptable._args.join(' '));
         let cmd = spawn(iptable._cmd, iptable._args),
           stderr = '',
           stdout = '';
-
-        iptable._cmd = 'iptables';
-        iptable._args = [];
 
         cmd.stdout.on('data', (data) => {
           stdout += data;
