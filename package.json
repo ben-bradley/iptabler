@@ -1,6 +1,6 @@
 {
   "name": "iptabler",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A wrapper for iptables that works with chains or configuration.",
   "main": "index.js",
   "repository": {

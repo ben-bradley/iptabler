@@ -24,7 +24,7 @@ function iptabler(options) {
     exec: function exec(callback) {
       debug('exec');
       return Promise(function (resolve, reject) {
-        debug('exec: ', iptable._cmd, iptable.args.join(' '));
+        debug('exec: ', iptable._cmd, iptable._args.join(' '));
         var cmd = spawn(iptable._cmd, iptable._args),
             stderr = '',
             stdout = '';
