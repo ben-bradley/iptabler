@@ -729,6 +729,9 @@ var args = [{
 }, {
   names: ['ulogQthreshold'],
   arg: '--ulog-qthreshold'
+}, {
+  names: ['wait', 'w'],
+  arg: '--wait'
 }];
 
 module.exports = args;
